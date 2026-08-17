@@ -36,7 +36,7 @@ Host NAME-OF-CONFIG
 
 Install rclone from https://rclone.org/
 
-Create a rclone configuration for the remote cloud storage:
+Create a rclone configuration for the remote cloud storage, put it  in the file `~/.config/rclone/rclone.conf` on your local machine:
 
 ```
 [s3]
