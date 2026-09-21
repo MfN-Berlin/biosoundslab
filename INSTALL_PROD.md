@@ -42,11 +42,12 @@ Open the `.env` file in an editor and set at least:
 * USE_GPU=1  # 1, 2, or all
 * TMP_DIR=/mnt/akwamotmp/your-subpath # this should be unique, and should exist
 * PGBACKUP_PATH=/mnt/akwamodb/unique-name # this should be unique, and should exist, and by convention the name should end with "_backup"
+* Make sute PROTOCOL is https
 
 Make sure that these are the same in .env and/or docker-compose.production.yaml:
 * The port in .env HASURA_URL should be unique and the port exposed by the graphql-engine service in docker.compose.production.yaml
 * Port to dashboard service
-* Port to DB service should be unique
+* Port to DB service should be unique. This port does not need to be maped in docker.compose.production.yaml for the system to work, only if you want to tunnel to the database for debugging or extra queries.
 
 Check that PGDATA_PATH exista and contains wav data.
 Check that TMP_DIR, PGBACKUP_PATH exist, is not used by another instance, or else create it.
