@@ -1,8 +1,8 @@
 # Enter new data
 
-This howto documents entering new data after a fresh installation. To install Ecomon, follow the instructions in INSTALL_PROD.md.
+This howto documents entering new data after a fresh installation. To install BioSoundsLab, follow the instructions in INSTALL_PROD.md.
 
-Open the new Ecomon installation in a browser. Go to the "Locations" page. Create a new location by clicking on the "+" button (next to the search field).
+Open the new BioSoundsLab installation in a browser. Go to the "Locations" page. Create a new location by clicking on the "+" button (next to the search field).
 
 Once the new location is created, go to the "Sites" page. Create a new site by clicking on the "+" button (next to the search field). In the location pulldown, select the newly created location.
 

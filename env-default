@@ -1,6 +1,6 @@
 ALLOW_EDIT=true
 
-HASURA_ADMIN_SECRET=ecomon
+HASURA_ADMIN_SECRET=biosoundslab
 HASURA_WEBHOOKS_BASE_URL=http://host.docker.internal:8000
 HASURA_URL=172.17.0.1:10080/v1/graphql
 
@@ -24,7 +24,7 @@ MAX_BACKUPS=3
 
 #traefik
 DOMAIN=localhost
-SUB_PATH=/ecomon_next
+SUB_PATH=/biosoundslab_next
 ENTRY_PORT=80
 PROTOCOL=http
 TMP_DIR=/YOUR_TMP_DIR

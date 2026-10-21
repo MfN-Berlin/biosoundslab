@@ -184,7 +184,7 @@ services:
       - AIRFLOW_CONN_POSTGRES_DEFAULT=postgresql://${DB_USERNAME}:${DB_PASSWORD}@db:5432/ecomon
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - AIRFLOW__WEBSERVER__BASE_URL=http://localhost/ecomon_validate/airflow
+      - AIRFLOW__WEBSERVER__BASE_URL=http://localhost/biosoundslab/airflow
 #      - AIRFLOW__WEBSERVER__URL_PATH_PREFIX=/ecomon_validate/airflow
       - PG_USER=${DB_USERNAME}
       - PG_PASSWORD=${DB_PASSWORD}
@@ -193,7 +193,7 @@ services:
       - PG_DATABASE=ecomon
       - MAX_BACKUPS=${MAX_BACKUPS}
       - CHUNK_SIZE=${BACKUP_CHUNK_SIZE}
-      - API_URL=http://localhost/ecomon_validate/api/v1/graphql
+      - API_URL=http://localhost/biosoundslab/api/v1/graphql
       - API_VERIFY_SSL=false
       - SUB_PATH=${SUB_PATH}
     volumes:

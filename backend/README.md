@@ -1,4 +1,4 @@
-# Ecomon Monitoring Data Analysis Backend
+# BioSoundsLab Monitoring Data Analysis Backend
 
 All User requests go through the hasura graphql api and then call by hasura webhooks
 All longer running tasks are executed by the celery worker and storing results in the database

@@ -62,8 +62,8 @@ mutation updateModel(
   $remarks: String
   $additional_docker_arguments: String
   $additional_model_arguments: String
-  $segment_duration: float8
-  $step_duration: float8
+  $segment_duration: Int
+  $step_duration: Int
   $image: String
 ) {
   data: update_models_by_pk(

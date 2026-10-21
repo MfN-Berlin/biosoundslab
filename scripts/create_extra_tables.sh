@@ -1,5 +1,5 @@
 #!/bin/bash
-# filepath: /home/alvaro/Workspace/ecomon_validate/scripts/create_extra_tables.sh
+# filepath: /home/alvaro/Workspace/biosoundslab_validate/scripts/create_extra_tables.sh
 
 # Script to create partitioned inference results table and view
 # Usage: ./create_extra_tables.sh <container_name> <db_user> <db_password>
@@ -9,7 +9,7 @@ set -e  # Exit on error
 # Check arguments
 if [ "$#" -lt 3 ]; then
     echo "Usage: $0 <container_name> <db_user> <db_password>"
-    echo "Example: $0 ecomon-db ecomon mypassword"
+    echo "Example: $0 biosoundslab-db ecomon mypassword"
     exit 1
 fi
 

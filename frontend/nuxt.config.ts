@@ -17,9 +17,9 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      link: [{ rel: "icon", type: "image/x-icon", href: `${process.env.SUB_PATH || '/ecomon'}/favicon.ico` }]
+      link: [{ rel: "icon", type: "image/x-icon", href: `${process.env.SUB_PATH || '/biosoundslab'}/favicon.ico` }]
     },
-    baseURL: process.env.SUB_PATH || "/ecomon/"
+    baseURL: process.env.SUB_PATH || "/biosoundslab/"
   },
   imports: {
     dirs: ["composables/**"]
@@ -33,7 +33,7 @@ export default defineNuxtConfig({
       ALLOW_EDIT: process.env.ALLOW_EDIT,
       LOG_LEVEL: "debug",
       GQL_HOST: process.env.NUXT_PUBLIC_GQL_HOST || "http://localhost:8080/v1/graphql",
-      API_BASE_URL: process.env.NUXT_PUBLIC_API_BASE_URL || "/ecomon/",
+      API_BASE_URL: process.env.NUXT_PUBLIC_API_BASE_URL || "/biosoundslab/",
       "graphql-client": {
         clients: {
           default: {

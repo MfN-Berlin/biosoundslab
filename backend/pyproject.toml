@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ecomon"
+name = "biosoundslab"
 version = "0.1.0"
 description = "Platform to analyze eco accoustic monitoring data"
 authors = ["bw <benjamin.werner42@pm.com>"]

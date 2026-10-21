@@ -1,6 +1,6 @@
 # Automation
 
-Automation is controlled through Airflow. The Airflow UI can be accessed at: http://localhost/ecomon_next/airflow
+Automation is controlled through Airflow. The Airflow UI can be accessed at: http://localhost/biosoundslab_next/airflow
 
 ## PostgreSQL Backup DAG
 

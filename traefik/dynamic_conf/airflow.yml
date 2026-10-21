@@ -1,7 +1,7 @@
 http:
   routers:
     airflow-router:
-      rule: "Host(`localhost`) && PathPrefix(`/ecomon_validate/airflow`)"
+      rule: "Host(`localhost`) && PathPrefix(`/biosoundslab/airflow`)"
       service: airflow-service
       entryPoints:
         - web

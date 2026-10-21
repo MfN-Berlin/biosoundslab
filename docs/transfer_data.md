@@ -1,6 +1,6 @@
 # Transfer data from another instance of Ecomon
 
-Once a new instance of Ecomon has been setup (see: INSTALL_DEV.md, INSTALL_PRID.md), you might want to transfer existing data into it.
+Once a new instance of BioSoundsLab has been setup (see: INSTALL_DEV.md, INSTALL_PRID.md), you might want to transfer existing data into it.
 
 1. Make a binary backup of the original database
 ```
@@ -9,9 +9,9 @@ pg_basebackup -Uecomon -D /path/to/backup/directory -P
 
 2. If in a production environment, point the environment variable PGDATA_PATH in .env to the binary backup.
 
-3. Start the containers for the new Ecomon instance. The database container should start and keep running, with the data from the backup. Other containers might not start at this point, ignore them for now.
+3. Start the containers for the new BioSoundsLab instance. The database container should start and keep running, with the data from the backup. Other containers might not start at this point, ignore them for now.
 
-4. Exec into the container where the database is running, open the databse in psql, change the password of the ecomon user to what is set in .env.
+4. Exec into the container where the database is running, open the databse in psql, change the password of the BioSoundsLab user to what is set in .env.
 ```
 docker exec -ti database-container bash
 psql -Umy_user -decomon
@@ -62,7 +62,7 @@ docker cp  <export_dir> <container_name>:/tmp
 ```
 For more options see ./import_minimal_data.sh
 
-# Transfer inference data from another instance of ecomon
+# Transfer inference data from another instance of BioSoundsLab
 
 **export_model_inference_results.sh**
 

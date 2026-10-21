@@ -3540,7 +3540,6 @@ type models {
   ): events_aggregate!
   id: Int!
   image: String
-  metalabel: String
 
   """An array relationship"""
   model_labels(
@@ -3579,8 +3578,8 @@ type models {
   ): model_labels_aggregate!
   name: String!
   remarks: String
-  segment_duration: float8
-  step_duration: float8
+  segment_duration: Int
+  step_duration: Int
   updated_at: timestamp
 }
 
@@ -3630,13 +3629,12 @@ input models_bool_exp {
   events_aggregate: events_aggregate_bool_exp
   id: Int_comparison_exp
   image: String_comparison_exp
-  metalabel: String_comparison_exp
   model_labels: model_labels_bool_exp
   model_labels_aggregate: model_labels_aggregate_bool_exp
   name: String_comparison_exp
   remarks: String_comparison_exp
-  segment_duration: float8_comparison_exp
-  step_duration: float8_comparison_exp
+  segment_duration: Int_comparison_exp
+  step_duration: Int_comparison_exp
   updated_at: timestamp_comparison_exp
 }
 
@@ -3660,8 +3658,8 @@ input type for incrementing numeric columns in table "models"
 """
 input models_inc_input {
   id: Int
-  segment_duration: float8
-  step_duration: float8
+  segment_duration: Int
+  step_duration: Int
 }
 
 """
@@ -3674,12 +3672,11 @@ input models_insert_input {
   events: events_arr_rel_insert_input
   id: Int
   image: String
-  metalabel: String
   model_labels: model_labels_arr_rel_insert_input
   name: String
   remarks: String
-  segment_duration: float8
-  step_duration: float8
+  segment_duration: Int
+  step_duration: Int
   updated_at: timestamp
 }
 
@@ -3690,11 +3687,10 @@ type models_max_fields {
   created_at: timestamp
   id: Int
   image: String
-  metalabel: String
   name: String
   remarks: String
-  segment_duration: float8
-  step_duration: float8
+  segment_duration: Int
+  step_duration: Int
   updated_at: timestamp
 }
 
@@ -3705,11 +3701,10 @@ type models_min_fields {
   created_at: timestamp
   id: Int
   image: String
-  metalabel: String
   name: String
   remarks: String
-  segment_duration: float8
-  step_duration: float8
+  segment_duration: Int
+  step_duration: Int
   updated_at: timestamp
 }
 
@@ -3751,7 +3746,6 @@ input models_order_by {
   events_aggregate: events_aggregate_order_by
   id: order_by
   image: order_by
-  metalabel: order_by
   model_labels_aggregate: model_labels_aggregate_order_by
   name: order_by
   remarks: order_by
@@ -3785,9 +3779,6 @@ enum models_select_column {
   image
 
   """column name"""
-  metalabel
-
-  """column name"""
   name
 
   """column name"""
@@ -3812,11 +3803,10 @@ input models_set_input {
   created_at: timestamp
   id: Int
   image: String
-  metalabel: String
   name: String
   remarks: String
-  segment_duration: float8
-  step_duration: float8
+  segment_duration: Int
+  step_duration: Int
   updated_at: timestamp
 }
 
@@ -3859,19 +3849,18 @@ input models_stream_cursor_value_input {
   created_at: timestamp
   id: Int
   image: String
-  metalabel: String
   name: String
   remarks: String
-  segment_duration: float8
-  step_duration: float8
+  segment_duration: Int
+  step_duration: Int
   updated_at: timestamp
 }
 
 """aggregate sum on columns"""
 type models_sum_fields {
   id: Int
-  segment_duration: float8
-  step_duration: float8
+  segment_duration: Int
+  step_duration: Int
 }
 
 """
@@ -3892,9 +3881,6 @@ enum models_update_column {
 
   """column name"""
   image
-
-  """column name"""
-  metalabel
 
   """column name"""
   name
@@ -4166,6 +4152,19 @@ type mutation_root {
   delete single row from the table: "sites"
   """
   delete_sites_by_pk(id: bigint!): sites
+
+  """
+  delete data from the table: "thresholds"
+  """
+  delete_thresholds(
+    """filter the rows which have to be deleted"""
+    where: thresholds_bool_exp!
+  ): thresholds_mutation_response
+
+  """
+  delete single row from the table: "thresholds"
+  """
+  delete_thresholds_by_pk(id: Int!): thresholds
 
   """
   delete data from the table: "workflow_reports"
@@ -4548,6 +4547,28 @@ type mutation_root {
     """upsert condition"""
     on_conflict: sites_on_conflict
   ): sites
+
+  """
+  insert data into the table: "thresholds"
+  """
+  insert_thresholds(
+    """the rows to be inserted"""
+    objects: [thresholds_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: thresholds_on_conflict
+  ): thresholds_mutation_response
+
+  """
+  insert a single row into the table: "thresholds"
+  """
+  insert_thresholds_one(
+    """the row to be inserted"""
+    object: thresholds_insert_input!
+
+    """upsert condition"""
+    on_conflict: thresholds_on_conflict
+  ): thresholds
 
   """
   insert data into the table: "workflow_reports"
@@ -5264,6 +5285,40 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [sites_updates!]!
   ): [sites_mutation_response]
+
+  """
+  update data of the table: "thresholds"
+  """
+  update_thresholds(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: thresholds_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: thresholds_set_input
+
+    """filter the rows which have to be updated"""
+    where: thresholds_bool_exp!
+  ): thresholds_mutation_response
+
+  """
+  update single row of the table: "thresholds"
+  """
+  update_thresholds_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: thresholds_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: thresholds_set_input
+    pk_columns: thresholds_pk_columns_input!
+  ): thresholds
+
+  """
+  update multiples rows of table: "thresholds"
+  """
+  update_thresholds_many(
+    """updates to execute, in order"""
+    updates: [thresholds_updates!]!
+  ): [thresholds_mutation_response]
 
   """
   update data of the table: "workflow_reports"
@@ -6051,6 +6106,49 @@ type query_root {
 
   """fetch data from the table: "sites" using primary key columns"""
   sites_by_pk(id: bigint!): sites
+
+  """
+  fetch data from the table: "thresholds"
+  """
+  thresholds(
+    """distinct select on columns"""
+    distinct_on: [thresholds_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [thresholds_order_by!]
+
+    """filter the rows returned"""
+    where: thresholds_bool_exp
+  ): [thresholds!]!
+
+  """
+  fetch aggregated fields from the table: "thresholds"
+  """
+  thresholds_aggregate(
+    """distinct select on columns"""
+    distinct_on: [thresholds_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [thresholds_order_by!]
+
+    """filter the rows returned"""
+    where: thresholds_bool_exp
+  ): thresholds_aggregate!
+
+  """fetch data from the table: "thresholds" using primary key columns"""
+  thresholds_by_pk(id: Int!): thresholds
 
   """
   fetch data from the table: "workflow_reports"
@@ -10697,6 +10795,63 @@ type subscription_root {
   ): [sites!]!
 
   """
+  fetch data from the table: "thresholds"
+  """
+  thresholds(
+    """distinct select on columns"""
+    distinct_on: [thresholds_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [thresholds_order_by!]
+
+    """filter the rows returned"""
+    where: thresholds_bool_exp
+  ): [thresholds!]!
+
+  """
+  fetch aggregated fields from the table: "thresholds"
+  """
+  thresholds_aggregate(
+    """distinct select on columns"""
+    distinct_on: [thresholds_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [thresholds_order_by!]
+
+    """filter the rows returned"""
+    where: thresholds_bool_exp
+  ): thresholds_aggregate!
+
+  """fetch data from the table: "thresholds" using primary key columns"""
+  thresholds_by_pk(id: Int!): thresholds
+
+  """
+  fetch data from the table in a streaming manner: "thresholds"
+  """
+  thresholds_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [thresholds_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: thresholds_bool_exp
+  ): [thresholds!]!
+
+  """
   fetch data from the table: "workflow_reports"
   """
   workflow_reports(
@@ -10754,6 +10909,311 @@ type subscription_root {
     """filter the rows returned"""
     where: workflow_reports_bool_exp
   ): [workflow_reports!]!
+}
+
+"""
+columns and relationships of "thresholds"
+"""
+type thresholds {
+  id: Int!
+
+  """An object relationship"""
+  label: labels
+  label_id: Int
+
+  """An object relationship"""
+  model: models
+  model_id: Int
+  set_at: timestamptz!
+  threshold: Float!
+  threshold_type: String
+}
+
+"""
+aggregated selection of "thresholds"
+"""
+type thresholds_aggregate {
+  aggregate: thresholds_aggregate_fields
+  nodes: [thresholds!]!
+}
+
+"""
+aggregate fields of "thresholds"
+"""
+type thresholds_aggregate_fields {
+  avg: thresholds_avg_fields
+  count(columns: [thresholds_select_column!], distinct: Boolean): Int!
+  max: thresholds_max_fields
+  min: thresholds_min_fields
+  stddev: thresholds_stddev_fields
+  stddev_pop: thresholds_stddev_pop_fields
+  stddev_samp: thresholds_stddev_samp_fields
+  sum: thresholds_sum_fields
+  var_pop: thresholds_var_pop_fields
+  var_samp: thresholds_var_samp_fields
+  variance: thresholds_variance_fields
+}
+
+"""aggregate avg on columns"""
+type thresholds_avg_fields {
+  id: Float
+  label_id: Float
+  model_id: Float
+  threshold: Float
+}
+
+"""
+Boolean expression to filter rows from the table "thresholds". All fields are combined with a logical 'AND'.
+"""
+input thresholds_bool_exp {
+  _and: [thresholds_bool_exp!]
+  _not: thresholds_bool_exp
+  _or: [thresholds_bool_exp!]
+  id: Int_comparison_exp
+  label: labels_bool_exp
+  label_id: Int_comparison_exp
+  model: models_bool_exp
+  model_id: Int_comparison_exp
+  set_at: timestamptz_comparison_exp
+  threshold: Float_comparison_exp
+  threshold_type: String_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "thresholds"
+"""
+enum thresholds_constraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  thresholds_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "thresholds"
+"""
+input thresholds_inc_input {
+  id: Int
+  label_id: Int
+  model_id: Int
+  threshold: Float
+}
+
+"""
+input type for inserting data into table "thresholds"
+"""
+input thresholds_insert_input {
+  id: Int
+  label: labels_obj_rel_insert_input
+  label_id: Int
+  model: models_obj_rel_insert_input
+  model_id: Int
+  set_at: timestamptz
+  threshold: Float
+  threshold_type: String
+}
+
+"""aggregate max on columns"""
+type thresholds_max_fields {
+  id: Int
+  label_id: Int
+  model_id: Int
+  set_at: timestamptz
+  threshold: Float
+  threshold_type: String
+}
+
+"""aggregate min on columns"""
+type thresholds_min_fields {
+  id: Int
+  label_id: Int
+  model_id: Int
+  set_at: timestamptz
+  threshold: Float
+  threshold_type: String
+}
+
+"""
+response of any mutation on the table "thresholds"
+"""
+type thresholds_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [thresholds!]!
+}
+
+"""
+on_conflict condition type for table "thresholds"
+"""
+input thresholds_on_conflict {
+  constraint: thresholds_constraint!
+  update_columns: [thresholds_update_column!]! = []
+  where: thresholds_bool_exp
+}
+
+"""Ordering options when selecting data from "thresholds"."""
+input thresholds_order_by {
+  id: order_by
+  label: labels_order_by
+  label_id: order_by
+  model: models_order_by
+  model_id: order_by
+  set_at: order_by
+  threshold: order_by
+  threshold_type: order_by
+}
+
+"""primary key columns input for table: thresholds"""
+input thresholds_pk_columns_input {
+  id: Int!
+}
+
+"""
+select columns of table "thresholds"
+"""
+enum thresholds_select_column {
+  """column name"""
+  id
+
+  """column name"""
+  label_id
+
+  """column name"""
+  model_id
+
+  """column name"""
+  set_at
+
+  """column name"""
+  threshold
+
+  """column name"""
+  threshold_type
+}
+
+"""
+input type for updating data in table "thresholds"
+"""
+input thresholds_set_input {
+  id: Int
+  label_id: Int
+  model_id: Int
+  set_at: timestamptz
+  threshold: Float
+  threshold_type: String
+}
+
+"""aggregate stddev on columns"""
+type thresholds_stddev_fields {
+  id: Float
+  label_id: Float
+  model_id: Float
+  threshold: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type thresholds_stddev_pop_fields {
+  id: Float
+  label_id: Float
+  model_id: Float
+  threshold: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type thresholds_stddev_samp_fields {
+  id: Float
+  label_id: Float
+  model_id: Float
+  threshold: Float
+}
+
+"""
+Streaming cursor of the table "thresholds"
+"""
+input thresholds_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: thresholds_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input thresholds_stream_cursor_value_input {
+  id: Int
+  label_id: Int
+  model_id: Int
+  set_at: timestamptz
+  threshold: Float
+  threshold_type: String
+}
+
+"""aggregate sum on columns"""
+type thresholds_sum_fields {
+  id: Int
+  label_id: Int
+  model_id: Int
+  threshold: Float
+}
+
+"""
+update columns of table "thresholds"
+"""
+enum thresholds_update_column {
+  """column name"""
+  id
+
+  """column name"""
+  label_id
+
+  """column name"""
+  model_id
+
+  """column name"""
+  set_at
+
+  """column name"""
+  threshold
+
+  """column name"""
+  threshold_type
+}
+
+input thresholds_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: thresholds_inc_input
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: thresholds_set_input
+
+  """filter the rows which have to be updated"""
+  where: thresholds_bool_exp!
+}
+
+"""aggregate var_pop on columns"""
+type thresholds_var_pop_fields {
+  id: Float
+  label_id: Float
+  model_id: Float
+  threshold: Float
+}
+
+"""aggregate var_samp on columns"""
+type thresholds_var_samp_fields {
+  id: Float
+  label_id: Float
+  model_id: Float
+  threshold: Float
+}
+
+"""aggregate variance on columns"""
+type thresholds_variance_fields {
+  id: Float
+  label_id: Float
+  model_id: Float
+  threshold: Float
 }
 
 scalar timestamp

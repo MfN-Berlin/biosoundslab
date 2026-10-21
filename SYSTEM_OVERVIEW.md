@@ -1,4 +1,4 @@
-# Ecomon Monitoring Data Analysis Platform
+# BioSoundsLab Monitoring Data Analysis Platform
 
 This platform to analyze the audio monitoring data project.
 
@@ -48,7 +48,7 @@ Additionally to the Celery worker, that is handling asynchronous jobs started in
 Inferencing is done with the help of [BirdID-Model-Zoo](https://github.com/MfN-Berlin/BirdID-Model-Zoo).
 Every inference Worker will start a BirdID-Model-Zoo container and this instance will
 start the selected Model Container with the selected Parameter. The BirdID-Model-Zoo
-will collect the results and transform them to the Ecomon format.
+will collect the results and transform them to the BioSoundsLab format.
 
 ## Development
 See INSTALL_DEV.md for installation of a development environment.

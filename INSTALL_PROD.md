@@ -1,5 +1,5 @@
-# Installing an Ecomon instance for development
-Instructions for installing Ecomon on a Linux server.
+# Installing an BioSoundsLab instance for development
+Instructions for installing BioSoundsLab on a Linux server.
 
 ## System requirements for production:
 * 250GB+ RAM
@@ -14,11 +14,11 @@ Required software
 * Git
 * Docker and Docker-Compose
 
-## Clone the repository into the desired directory (ecomon_SITENAME_MODELNAME)
+## Clone the repository into the desired directory (biosoundslab_SITENAME_MODELNAME)
 ```
-sudo GIT_SSH_COMMAND='ssh -i path-to-your-id_rsa' git clone git@github.com:MfN-Berlin/ecomon.git ecomon_SITENAME_MODELNAME
-sudo chown -R "$USER":akwamo ecomon_SITENAME_MODELNAME
-cd ecomon_SITENAME_MODELNAME
+sudo GIT_SSH_COMMAND='ssh -i path-to-your-id_rsa' git clone git@github.com:MfN-Berlin/biosoundslab.git biosoundslab_SITENAME_MODELNAME
+sudo chown -R "$USER":akwamo biosoundslab_SITENAME_MODELNAME
+cd biosoundslab_SITENAME_MODELNAME
 ```
 Check that you are on the correct branch: `git status` should give "new-main"
 
@@ -54,10 +54,10 @@ Check that TMP_DIR, PGBACKUP_PATH exist, is not used by another instance, or els
 
 Give the redis service in docker-compose.production.yaml a unique name
 
-In .env, set the ENTRY_PORT to the port this instance of ecomon should listen to. This is the entry port that your reverse-proxy (which might be on another machine) is mapping the URL https://your-ip-adress/SUB_PATH to.
+In .env, set the ENTRY_PORT to the port this instance of BioSoundsLab should listen to. This is the entry port that your reverse-proxy (which might be on another machine) is mapping the URL https://your-ip-adress/SUB_PATH to.
 
 ## Multiple instances
-If you need multiple instances of ecomon, then the recommended solution is to put each instance in its own virtual machine.
+If you need multiple instances of BioSoundsLab, then the recommended solution is to put each instance in its own virtual machine.
 
 However, if you need to install multiple instances on the same (virtual) machine, you will need to make a local fork of the repository, and rebuild the frontend container, after setting the environment variables as above.
 
@@ -66,10 +66,10 @@ However, if you need to install multiple instances on the same (virtual) machine
 git branch NAME-OF-INSTANCE
 git checkout NAME-OF-INSTANCE
 cd frontend
-docker build -f Dockerfile -t ghcr.io/mfn-berlin/ecomon-frontend:NAME-OF-INSTANCE .
+docker build -f Dockerfile -t ghcr.io/mfn-berlin/biosoundslab-frontend:NAME-OF-INSTANCE .
 ```
 
-Edit `docker-compose.production.yml` and set the image name of the frontend service to: `ghcr.io/mfn-berlin/ecomon-frontend:NAME-OF-INSTANCE`.
+Edit `docker-compose.production.yml` and set the image name of the frontend service to: `ghcr.io/mfn-berlin/biosoundslab-frontend:NAME-OF-INSTANCE`.
 
 ## Start Docker containers
 ```
@@ -88,7 +88,7 @@ This should start these containers:
 * NAME-OF-INSTANCE-db-1
 
 And these networks:
-* NAME-OF-INSTANCE_ecomon
+* NAME-OF-INSTANCE_biosoundslab
 * NAME-OF-INSTANCE_traefik-ingress
 
 ## Database
@@ -100,7 +100,7 @@ The default configuration is to create 200 partitions each holding the inference
 
 So for example
 
-`PARTITION_COUNT=200 RECORDS_PER_PARTITION=25000 ./scripts/create_extra_tables.sh NAME-OF-INSTANCE-db-1 ecomon passwd`
+`PARTITION_COUNT=200 RECORDS_PER_PARTITION=25000 ./scripts/create_extra_tables.sh NAME-OF-INSTANCE-db-1 biosoundslab passwd`
 
 The site should now be accessible. See docs folder on how to enter new data.
 
