@@ -3,8 +3,6 @@ name: Build Docker images
 on:
   push:
     branches:
-      - next
-      - ecomon_validate
       - new-main
 
 jobs:
@@ -49,5 +47,5 @@ jobs:
           file: ${{ matrix.dockerfile }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ghcr.io/${{ env.OWNER_LC }}/ecomon-${{ matrix.name }}:latest
-            ghcr.io/${{ env.OWNER_LC }}/ecomon-${{ matrix.name }}:${{ github.sha }}
+            ghcr.io/${{ env.OWNER_LC }}/biosoundslab-${{ matrix.name }}:latest
+            ghcr.io/${{ env.OWNER_LC }}/biosoundslab-${{ matrix.name }}:${{ github.sha }}
