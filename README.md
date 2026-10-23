@@ -28,6 +28,7 @@ You are responsible for:
 You may not use the software or derived content for:
 * Poaching or wildlife tracking that facilitates illegal capture, harm, trade, or exploitation of species.
 * Military purposes, including surveillance, targeting, or integration into defense systems.
+
 If you cannot comply with these conditions, you may not use the software.
 
 ### Limitation of Liability
