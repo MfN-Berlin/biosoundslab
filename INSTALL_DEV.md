@@ -61,7 +61,7 @@ npm install
 Create extra database schemas and views
 ```
 cd ../
-/scripts/create_extra_tables.sh biosoundslab-db-1 ecomon ecomon
+./scripts/create_extra_tables.sh biosoundslab-db-1 ecomon ecomon
 ```
 
 ## Start the application
