@@ -8,7 +8,7 @@ Report issues, errors, or data inconsistencies, inform us about new data, or sug
 ### AI usage
 This project uses Mistral Codestral from Mistral AI for assistance in software development. 
 In doing so, the “Guidelines on the Use of Generative Artificial Intelligence (AI) at the Museum für Naturkunde Berlin”, 
-https://doi.org/10.7479/7tt3-rs54, have been taken into account.
+[10.7479/7tt3-rs54](https://doi.org/10.7479/7tt3-rs54), have been taken into account.
 
 ## Citation
 Publications, presentations, or derived tools must acknowledge the use of the software through citation:
