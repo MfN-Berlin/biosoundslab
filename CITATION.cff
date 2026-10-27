@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "Publications, presentations, or derived tools must acknowledge the use of the software through citation."
+authors:
+  - family-names: Ortiz Troncoso
+    given-names: Alvaro
+    orcid: "https://orcid.org/0000-0001-7620-1907"
+  - family-names: Werner
+    given-names: Benjamin
+    orcid: "https://orcid.org/0009-0001-2796-012X"
+  - family-names: Lasseck
+    given-names: Mario
+  - family-names: Jahn
+    given-names: Olaf
+    orcid: "https://orcid.org/0000-0001-7936-033X"
+title: "BioSoundsLab"
+version: 1.0.0
+date-released: "2026-10-27"
+license: MIT
+repository-code: "https://github.com/MfN-Berlin/biosoundslab"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23688983
