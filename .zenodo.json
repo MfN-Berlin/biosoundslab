@@ -1,0 +1,26 @@
+{
+  "title": "BioSoundsLab",
+  "version": "1.0.0",
+  "publication_date": "2026-10-27",
+  "description": "A software package for the analysis of animal sounds in soundscape recordings .",
+  "license": "MIT",
+  "creators": [
+    {
+      "name": "Ortiz Troncoso, Alvaro",
+      "orcid": "0000-0001-7620-1907"
+    },
+    {
+      "name": "Werner, Benjamin",
+      "orcid": "0009-0001-2796-012X"
+    },
+    {
+      "name": "Lasseck, Mario"
+    },
+    {
+      "name": "Jahn, Olaf",
+      "orcid": "0000-0001-7936-033X"
+    }
+  ],
+  "keywords": ["bioacoustics", "sound analysis"],
+  "access_right": "open"
+}
