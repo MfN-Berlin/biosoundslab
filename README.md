@@ -13,7 +13,7 @@ https://doi.org/10.7479/7tt3-rs54, have been taken into account.
 ## Citation
 Publications, presentations, or derived tools must acknowledge the use of the software through citation:
 
-Ortiz Troncoso, A., Benjamin, W. , Lasseck, M. & Jahn, O. (2026). BioSoundsAnalytics - a software package for the analysis of animal sounds in soundscape recordings (Version v1.0) [Software]. Museum für Naturkunde - Leibniz Institute for Evolution and Biodiversity Science, Berlin, Germany. https://doi.org/nnnnnnnnnn
+Ortiz Troncoso, A., Benjamin, W. , Lasseck, M. & Jahn, O. (2026). BioSoundsLab - a software package for the analysis of animal sounds in soundscape recordings (Version v1.0) [Software]. Museum für Naturkunde - Leibniz Institute for Evolution and Biodiversity Science, Berlin, Germany. https://doi.org/nnnnnnnnnn
 
 ## License
 This project is licensed under the MIT License. A copy of the MIT license is included.
