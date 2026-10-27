@@ -5,11 +5,16 @@ BioSoundsLab was developed as part of the project “Integration of (bio-)acoust
 ## Contributing
 Report issues, errors, or data inconsistencies, inform us about new data, or suggest specific additions or changes.
 
+### AI usage
+This project uses Mistral Codestral from Mistral AI for assistance in software development. 
+In doing so, the “Guidelines on the Use of Generative Artificial Intelligence (AI) at the Museum für Naturkunde Berlin”, 
+https://doi.org/10.7479/7tt3-rs54, have been taken into account.
+
 ## Citation
 Publications, presentations, or derived tools must acknowledge the use of the software through citation:
 
 Ortiz Troncoso, A., Benjamin, W. , Lasseck, M. & Jahn, O. (2026). BioSoundsAnalytics - a software package for the analysis of animal sounds in soundscape recordings (Version v1.0) [Software]. Museum für Naturkunde - Leibniz Institute for Evolution and Biodiversity Science, Berlin, Germany. https://doi.org/nnnnnnnnnn
-
+Intelligence (AI) at the Museum für Naturkunde Berlin”, https://doi.org/10.7479/7tt3-rs54, have been taken into account
 ## License
 This project is licensed under the MIT License. A copy of the MIT license is included.
 
