@@ -2,6 +2,10 @@
 BioSoundsLab is an open-source system for the scientific collection and analysis of bioacoustic data, developed by the Museum für Naturkunde Berlin. It supports the automated recognition and analysis of animal sounds (e.g., birds, insects), thereby contributing to the documentation and assessment of biodiversity. The system is part of research into integrating AI-based methods into ecological field research.
 BioSoundsLab was developed as part of the project “Integration of (bio-)acoustic methods for quantifying biodiversity into forest monitoring”. Funded by: The Federal Ministry of Agriculture, Food and Regional Identity (BMLEH), Funding reference: 2221NR050B
 
+## See also
+* [BioSoundsLab Dashboard](https://github.com/MfN-Berlin/biosoundslab-dashboard)
+* [BioSoundsLab Query](https://github.com/MfN-Berlin/biosoundslab-query)
+
 ## Contributing
 Report issues, errors, or data inconsistencies, inform us about new data, or suggest specific additions or changes.
 
