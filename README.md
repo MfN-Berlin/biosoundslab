@@ -2,13 +2,22 @@
 BioSoundsLab is an open-source system for the scientific collection and analysis of bioacoustic data, developed by the Museum für Naturkunde Berlin. It supports the automated recognition and analysis of animal sounds (e.g., birds, insects), thereby contributing to the documentation and assessment of biodiversity. The system is part of research into integrating AI-based methods into ecological field research.
 BioSoundsLab was developed as part of the project “Integration of (bio-)acoustic methods for quantifying biodiversity into forest monitoring”. Funded by: The Federal Ministry of Agriculture, Food and Regional Identity (BMLEH), Funding reference: 2221NR050B
 
+## See also
+* [BioSoundsLab Dashboard](https://github.com/MfN-Berlin/biosoundslab-dashboard)
+* [BioSoundsLab Query](https://github.com/MfN-Berlin/biosoundslab-query)
+
 ## Contributing
 Report issues, errors, or data inconsistencies, inform us about new data, or suggest specific additions or changes.
+
+### AI usage
+This project uses Mistral Codestral from Mistral AI for assistance in software development. 
+In doing so, the “Guidelines on the Use of Generative Artificial Intelligence (AI) at the Museum für Naturkunde Berlin”, 
+DOI: [10.7479/7tt3-rs54](https://doi.org/10.7479/7tt3-rs54), have been taken into account.
 
 ## Citation
 Publications, presentations, or derived tools must acknowledge the use of the software through citation:
 
-Ortiz Troncoso, A., Benjamin, W. , Lasseck, M. & Jahn, O. (2026). BioSoundsAnalytics - a software package for the analysis of animal sounds in soundscape recordings (Version v1.0) [Software]. Museum für Naturkunde - Leibniz Institute for Evolution and Biodiversity Science, Berlin, Germany. https://doi.org/nnnnnnnnnn
+Ortiz Troncoso, A., Werner, B. , Lasseck, M. & Jahn, O. (2026). BioSoundsLab - a software package for the analysis of animal sounds in soundscape recordings (Version v1.0) [Software]. Museum für Naturkunde - Leibniz Institute for Evolution and Biodiversity Science, Berlin, Germany. DOI: [10.5281/zenodo.23688982](https://doi.org/10.5281/zenodo.23688982)
 
 ## License
 This project is licensed under the MIT License. A copy of the MIT license is included.
