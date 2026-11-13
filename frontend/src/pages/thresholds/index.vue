@@ -18,25 +18,8 @@ const paginationOptions = [
 ];
 
 /**
- * Initialize threshold pagination composable
- * Provides reactive state for table data, pagination, sorting, and search
+ * Get runtime configuration (may be used for API endpoints)
  */
-const {
-  page,                 // Current page number
-  itemsPerPage,        // Items displayed per page
-  sortBy,              // Current sort configuration
-  items,               // Current page items
-  totalItems,          // Total number of records
-  isLoading: loading,  // Loading state
-  handleReset,         // Reset search filters
-  handleSearch,        // Apply search filters
-  refetch              // Function to manually refetch data
-} = useThresholdsPaginated();
-
-// Set default sorting by label name in ascending order
-sortBy.value = [{ key: 'label.name', order: 'asc' }];
-
-// Get runtime configuration (may be used for API endpoints)
 const config = useRuntimeConfig();
 
 /**
@@ -54,114 +37,42 @@ function getNested(obj: any, key: string) {
   return key.split('.').reduce((o, k) => (o ? o[k] : undefined), obj);
 }
 
-const headers = [
-  {
-    title: "ID",
-    key: "id",
-    align: "end",
-    sortable: true,
-    search: false
-  },
-  {
-    title: "Label",
-    key: "label.name",
-    align: "start",
-    sortable: true,
-    search: { operator: "_like", type: "text" }
-  },
-  {
-    title: "Model",
-    key: "model.name",
-    align: "start",
-    sortable: true,
-    search: { operator: "_like", type: "text" }
-  },
-  {
-    title: "Threshold",
-    key: "threshold",
-    align: "end",
-    sortable: true,
-    search: { operator: "_eq", type: "number" }
-  },
-  {
-    title: "Type",
-    key: "threshold_type",
-    align: "start",
-    sortable: true,
-    search: { operator: "_like", type: "text" }
-  },
+// Type for pivoted threshold data - one row per label/model combination
+interface PivotedThresholdRow {
+  id: string; // composite key: model_id_label_id
+  label: { id: string; name: string };
+  model: { id: string; name: string };
+  label_id: string;
+  model_id: string;
+  threshold_default: string | null;
+  threshold_experimental: string | null;
+  threshold_preliminary: string | null;
+  threshold_final: string | null;
+  threshold_ids: {
+    default?: string;
+    experimental?: string;
+    preliminary?: string;
+    final?: string;
+  };
+  set_at_default?: string;
+  set_at_experimental?: string;
+  set_at_preliminary?: string;
+  set_at_final?: string;
+}
 
-  {
-    title: "Actions",
-    key: "actions",
-    align: "center",
-    sortable: false,
-    search: false
-  }
-] as const;
+// Reactive pivoted data
+const pivotedItems = ref<PivotedThresholdRow[]>([]);
+const pivotedLoading = ref<boolean>(true);
+const pivotedTotalItems = ref<number>(0);
+const pivotedPage = ref<number>(1);
+const pivotedItemsPerPage = ref<number>(10);
+const pivotedSortBy = ref<{ key: string; order: 'asc' | 'desc' }[]>([{ key: 'label.name', order: 'asc' }]);
 
-// Get the update mutation
-const { mutate: updateThreshold, isPending: isUpdating } = useThresholdUpdate();
-
-// Dialog state
-const dialog = ref(false);
-const selectedThreshold = ref<ThresholdItem | null>(null);
-const selectedThresholdType = ref<string>("preliminary");
-
-// Handle button click
-const handleActionClick = (item: ThresholdItem) => {
-  selectedThreshold.value = item;
-  selectedThresholdType.value = "preliminary";
-  dialog.value = true;
-};
-
-// Handle confirmation
-const confirmAction = () => {
-  const threshold = selectedThreshold.value;
-  if (!threshold) return;
-
-  updateThreshold(
-    { id: threshold.id, threshold_type: selectedThresholdType.value },
-    {
-      onSuccess: () => {
-        dialog.value = false;
-        selectedThreshold.value = null;
-        // Refetch the data to show the updated value
-        refetch?.();
-      },
-      onError: (error) => {
-        console.error("Error updating threshold:", error);
-        dialog.value = false;
-        selectedThreshold.value = null;
-      }
-    }
-  );
-};
-
-// Cancel action
-const cancelAction = () => {
-  dialog.value = false;
-  selectedThreshold.value = null;
-};
-
-// Handle "Set as final" click
-const setAsFinal = (item: ThresholdItem) => {
-  updateThreshold(
-    { id: item.id, threshold_type: "final" },
-    {
-      onSuccess: () => {
-        // Refetch the data to show the updated value
-        refetch?.();
-      },
-      onError: (error) => {
-        console.error("Error setting threshold as final:", error);
-      }
-    }
-  );
-};
-
-// Helper function to fetch and filter threshold data
-const fetchFilteredThresholds = async (): Promise<ThresholdItem[]> => {
+/**
+ * Fetch all thresholds and pivot them so each row represents a label/model combination
+ * with the latest threshold value for each type
+ */
+async function fetchAndPivotThresholds(): Promise<PivotedThresholdRow[]> {
   const config = useRuntimeConfig();
   
   const result = await $fetch(config.public.GQL_HOST, {
@@ -195,49 +106,300 @@ const fetchFilteredThresholds = async (): Promise<ThresholdItem[]> => {
 
   const allThresholds: ThresholdItem[] = result.data?.thresholds || [];
   
-  // Filter to keep only the latest (by set_at) for each model_id + label_id combination
-  const latestMap = new Map<string, ThresholdItem>();
+  // Group by model_id + label_id
+  const grouped = new Map<string, ThresholdItem[]>();
   allThresholds.forEach((item) => {
     const key = `${item.model_id}_${item.label_id}`;
-    const existing = latestMap.get(key);
-    if (!existing || new Date(item.set_at) > new Date(existing.set_at)) {
-      latestMap.set(key, item);
+    if (!grouped.has(key)) {
+      grouped.set(key, []);
     }
+    grouped.get(key)!.push(item);
   });
   
-  const filteredItems = Array.from(latestMap.values());
+  // For each group, find the latest threshold for each type
+  const pivotedRows: PivotedThresholdRow[] = [];
+  grouped.forEach((items, key) => {
+    const row: PivotedThresholdRow = {
+      id: key,
+      label: items[0].label || { id: '', name: '' },
+      model: items[0].model || { id: '', name: '' },
+      label_id: items[0].label_id,
+      model_id: items[0].model_id,
+      threshold_default: null,
+      threshold_experimental: null,
+      threshold_preliminary: null,
+      threshold_final: null,
+      threshold_ids: {},
+    };
+    
+    // Find latest for each type
+    const types = ['default', 'experimental', 'preliminary', 'final'] as const;
+    types.forEach(type => {
+      const typeItems = items.filter(item => item.threshold_type === type);
+      if (typeItems.length > 0) {
+        // Find the latest by set_at
+        const latest = typeItems.reduce((prev, current) => {
+          return new Date(current.set_at) > new Date(prev.set_at) ? current : prev;
+        });
+        row[`threshold_${type}`] = String(latest.threshold);
+        row.threshold_ids[type] = latest.id;
+        row[`set_at_${type}`] = latest.set_at;
+      }
+    });
+    
+    pivotedRows.push(row);
+  });
   
-  // Sort by label name ascending (same as table default)
-  filteredItems.sort((a, b) => {
+  // Sort by label name ascending
+  pivotedRows.sort((a, b) => {
     const aLabel = a.label?.name || '';
     const bLabel = b.label?.name || '';
     return aLabel.localeCompare(bLabel);
   });
   
-  return filteredItems;
+  return pivotedRows;
+}
+
+/**
+ * Load pivoted data - fetches all data once and lets the table handle pagination client-side
+ */
+async function loadPivotedData() {
+  pivotedLoading.value = true;
+  try {
+    const allData = await fetchAndPivotThresholds();
+    pivotedItems.value = allData;
+    pivotedTotalItems.value = allData.length;
+  } catch (error) {
+    console.error('Error loading pivoted thresholds:', error);
+  } finally {
+    pivotedLoading.value = false;
+  }
+}
+
+// Initial load
+loadPivotedData();
+
+const headers = [
+  {
+    title: "Label",
+    key: "label.name",
+    align: "start",
+    sortable: true,
+    search: { operator: "_like", type: "text" }
+  },
+  {
+    title: "Model",
+    key: "model.name",
+    align: "start",
+    sortable: true,
+    search: { operator: "_like", type: "text" }
+  },
+  {
+    title: "Default",
+    key: "threshold_default",
+    align: "end",
+    sortable: true,
+    search: false
+  },
+  {
+    title: "Experimental",
+    key: "threshold_experimental",
+    align: "end",
+    sortable: true,
+    search: false
+  },
+  {
+    title: "Preliminary",
+    key: "threshold_preliminary",
+    align: "end",
+    sortable: true,
+    search: false
+  },
+  {
+    title: "Final",
+    key: "threshold_final",
+    align: "end",
+    sortable: true,
+    search: false
+  },
+  {
+    title: "Actions",
+    key: "actions",
+    align: "center",
+    sortable: false,
+    search: false
+  }
+] as const;
+
+// Get the update mutation
+const { mutate: updateThreshold, isPending: isUpdating } = useThresholdUpdate();
+
+// Dialog state for edit popup
+const editDialog = ref(false);
+const editingRow = ref<PivotedThresholdRow | null>(null);
+const editingValues = ref<{
+  default: number | null;
+  experimental: number | null;
+  preliminary: number | null;
+  final: number | null;
+}>({
+  default: null,
+  experimental: null,
+  preliminary: null,
+  final: null
+});
+
+// State for Final threshold lock
+const finalLocked = ref(true);
+
+// Dialog for unlock warning
+const unlockWarningDialog = ref(false);
+
+// Local loading state for save
+const saving = ref(false);
+
+// Scroller configuration for number inputs
+const scrollerConfig = {
+  min: 0,
+  max: 1,
+  step: 0.01
 };
+
+// Open edit dialog
+const openEditDialog = (row: PivotedThresholdRow) => {
+  editingRow.value = row;
+  editingValues.value = {
+    default: row.threshold_default !== null && row.threshold_default !== '-' ? parseFloat(row.threshold_default) : null,
+    experimental: row.threshold_experimental !== null && row.threshold_experimental !== '-' ? parseFloat(row.threshold_experimental) : null,
+    preliminary: row.threshold_preliminary !== null && row.threshold_preliminary !== '-' ? parseFloat(row.threshold_preliminary) : null,
+    final: row.threshold_final !== null && row.threshold_final !== '-' ? parseFloat(row.threshold_final) : null
+  };
+  finalLocked.value = true; // Reset lock state when opening dialog
+  editDialog.value = true;
+};
+
+// Show unlock warning dialog
+const showUnlockWarning = () => {
+  unlockWarningDialog.value = true;
+};
+
+// Unlock the final input
+const unlockFinalInput = () => {
+  finalLocked.value = false;
+  unlockWarningDialog.value = false;
+};
+
+// Cancel unlock
+const cancelUnlock = () => {
+  unlockWarningDialog.value = false;
+};
+
+// Helper function to update threshold value via direct GraphQL mutation
+async function updateThresholdValue(thresholdId: string, newValue: number): Promise<void> {
+  const config = useRuntimeConfig();
+  
+  await $fetch(config.public.GQL_HOST, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: {
+      query: `
+        mutation updateThreshold($id: Int!, $threshold: Float!) {
+          update_thresholds_by_pk(
+            pk_columns: {id: $id}
+            _set: {threshold: $threshold, set_at: "now()"}
+          ) {
+            id
+            threshold
+            set_at
+          }
+        }
+      `,
+      variables: {
+        id: parseInt(thresholdId),
+        threshold: newValue
+      }
+    },
+  });
+}
+
+// Save edited values
+const saveEditedValues = async () => {
+  saving.value = true;
+  try {
+    if (!editingRow.value) return;
+    
+    const row = editingRow.value;
+    const types = ['default', 'experimental', 'preliminary', 'final'] as const;
+    
+    // Update each threshold type that has a value
+    for (const type of types) {
+      const thresholdId = row.threshold_ids[type];
+      const newValue = editingValues.value[type];
+      
+      // Only update if there's an existing threshold ID and a new value
+      if (thresholdId && newValue !== null) {
+        try {
+          await updateThresholdValue(thresholdId, newValue);
+        } catch (error) {
+          console.error(`Error updating ${type} threshold:`, error);
+          // Continue with other updates even if one fails
+        }
+      }
+    }
+    
+    // Reload data and close dialog
+    editDialog.value = false;
+    editingRow.value = null;
+    await loadPivotedData();
+  } finally {
+    saving.value = false;
+  }
+};
+
+// Cancel edit
+const cancelEdit = () => {
+  editDialog.value = false;
+  editingRow.value = null;
+};
+
+
+
+/**
+ * Helper function to get pivoted data for exports
+ * Returns all pivoted threshold rows
+ */
+async function getPivotedDataForExport(): Promise<PivotedThresholdRow[]> {
+  // If we already have pivoted data loaded, use it
+  if (pivotedItems.value.length > 0) {
+    return pivotedItems.value;
+  }
+  // Otherwise fetch fresh
+  return await fetchAndPivotThresholds();
+}
 
 // Function to export thresholds as CSV
 const exportToCSV = async () => {
   try {
-    const filteredItems = await fetchFilteredThresholds();
+    const pivotedData = await getPivotedDataForExport();
     
-    // Create CSV content
-    const csvHeaders = ['ID', 'Label', 'Model', 'Threshold', 'Type', 'Set At'];
+    // Create CSV content with new column structure
+    const csvHeaders = ['Label', 'Model', 'Default', 'Experimental', 'Preliminary', 'Final'];
     const csvRows = [];
     
     // Add header row
     csvRows.push(csvHeaders.join(','));
     
     // Add data rows
-    filteredItems.forEach((item) => {
+    pivotedData.forEach((item) => {
       const row = [
-        item.id,
         `"${item.label?.name?.replace(/"/g, '""') || ''}"`,
         `"${item.model?.name?.replace(/"/g, '""') || ''}"`,
-        item.threshold,
-        item.threshold_type || '',
-        item.set_at,
+        item.threshold_default !== null && item.threshold_default !== '-' ? item.threshold_default : '-',
+        item.threshold_experimental !== null && item.threshold_experimental !== '-' ? item.threshold_experimental : '-',
+        item.threshold_preliminary !== null && item.threshold_preliminary !== '-' ? item.threshold_preliminary : '-',
+        item.threshold_final !== null && item.threshold_final !== '-' ? item.threshold_final : '-',
       ];
       csvRows.push(row.join(','));
     });
@@ -264,22 +426,22 @@ const exportToCSV = async () => {
 // Function to export thresholds as Excel
 const exportToExcel = async () => {
   try {
-    const filteredItems = await fetchFilteredThresholds();
+    const pivotedData = await getPivotedDataForExport();
     
     // Create workbook
     const workbook = XLSX.utils.book_new();
     
-    // Build complete array of arrays (headers + all data rows)
+    // Build complete array of arrays (headers + all data rows) with new column structure
     const aoa = [];
-    aoa.push(['ID', 'Label', 'Model', 'Threshold', 'Type', 'Set At']);
-    filteredItems.forEach((item) => {
+    aoa.push(['Label', 'Model', 'Default', 'Experimental', 'Preliminary', 'Final']);
+    pivotedData.forEach((item) => {
       aoa.push([
-        item.id,
         item.label?.name || '',
         item.model?.name || '',
-        item.threshold,
-        item.threshold_type || '',
-        item.set_at,
+        item.threshold_default !== null && item.threshold_default !== '-' ? item.threshold_default : '-',
+        item.threshold_experimental !== null && item.threshold_experimental !== '-' ? item.threshold_experimental : '-',
+        item.threshold_preliminary !== null && item.threshold_preliminary !== '-' ? item.threshold_preliminary : '-',
+        item.threshold_final !== null && item.threshold_final !== '-' ? item.threshold_final : '-',
       ]);
     });
     
@@ -311,51 +473,58 @@ const exportToExcel = async () => {
 <template>
   <v-container fluid>
     <div class="position-relative">
-      <v-data-table-server
-        v-model:items-per-page="itemsPerPage"
-        v-model:page="page"
-        v-model:sort-by="sortBy"
+      <v-data-table
+        v-model:items-per-page="pivotedItemsPerPage"
+        v-model:page="pivotedPage"
+        v-model:sort-by="pivotedSortBy"
         :headers="headers"
-        :items="items"
-        :items-length="totalItems"
-        :loading="loading"
+        :items="pivotedItems"
+        :items-length="pivotedTotalItems"
+        :loading="pivotedLoading"
         item-value="id"
         :items-per-page-options="paginationOptions"
         >
       <!--
         Table Row Template
-        Custom template for each data row with proper nested data handling and alignment
+        Custom template for each data row with pivoted threshold data
       -->
       <template #item="{ item }">
         <tr :style="{
-          backgroundColor: item.threshold_type === 'experimental' ? 'rgb(255, 230, 178)' :
-                           item.threshold_type === 'preliminary' ? 'rgb(255, 249, 196)' :
-                           item.threshold_type === 'final' ? 'rgb(200, 230, 201)' : ''
+          backgroundColor: item.threshold_final !== null && item.threshold_final !== '-' ? 'rgb(200, 230, 201)' :
+                           item.threshold_preliminary !== null && item.threshold_preliminary !== '-' ? 'rgb(255, 249, 196)' :
+                           item.threshold_experimental !== null && item.threshold_experimental !== '-' ? 'rgb(255, 230, 178)' : ''
         }">
           <td v-for="header in headers" :key="header.key" :style="{ textAlign: header.align === 'end' ? 'right' : header.align === 'center' ? 'center' : 'left' }">
             <template v-if="header.key !== 'actions'">
-              <span v-if="header.key === 'label.name'" style="font-style: italic;">
-                {{ getNested(item, header.key) }}
-              </span>
-              <span v-else>
-                {{ getNested(item, header.key) }}
-              </span>
+              <template v-if="header.key.startsWith('threshold_')">
+                <span :style="{ color: header.key === 'threshold_default' ? '#999999' : 'inherit' }">
+                  {{ item[header.key] !== null ? item[header.key] : '-' }}
+                </span>
+              </template>
+              <template v-else>
+                <span v-if="header.key === 'label.name'" style="font-style: italic;">
+                  {{ getNested(item, header.key) }}
+                </span>
+                <span v-else>
+                  {{ getNested(item, header.key) }}
+                </span>
+              </template>
             </template>
             <template v-else>
+              <!-- EDIT button - opens popup with sliders for all 4 threshold types -->
               <v-btn
                 size="small"
                 color="primary"
                 variant="outlined"
-                :loading="isUpdating"
-                @click.stop="item.threshold_type === 'final' ? handleActionClick(item) : setAsFinal(item)"
+                @click.stop="openEditDialog(item)"
               >
-                {{ item.threshold_type === 'final' ? 'Enable editing' : 'Set as final' }}
+                EDIT
               </v-btn>
             </template>
           </td>
         </tr>
       </template>
-      </v-data-table-server>
+      </v-data-table>
 
       <!-- Download Buttons - positioned at bottom left, same height as paginator -->
       <div class="position-absolute bottom-0 left-0 d-flex">
@@ -364,7 +533,7 @@ const exportToExcel = async () => {
           variant="outlined"
           prepend-icon="mdi-download"
           @click.stop="exportToCSV"
-          :loading="loading"
+          :loading="pivotedLoading"
           class="mr-2"
         >
           Download as CSV
@@ -374,34 +543,123 @@ const exportToExcel = async () => {
           variant="outlined"
           prepend-icon="mdi-file-excel"
           @click.stop="exportToExcel"
-          :loading="loading"
+          :loading="pivotedLoading"
         >
           Download as Excel
         </v-btn>
       </div>
     </div>
 
-    <!-- Confirmation Dialog -->
-    <v-dialog v-model="dialog" max-width="500">
+    <!-- EDIT Dialog with scrollers for all 4 threshold types -->
+    <v-dialog v-model="editDialog" max-width="600">
       <v-card>
-        <v-card-title class="headline">Set Threshold Type</v-card-title>
+        <v-card-title class="headline">Edit Thresholds</v-card-title>
         <v-card-text>
-          <v-radio-group v-model="selectedThresholdType">
-            <v-radio label="Experimental" value="experimental"></v-radio>
-            <v-radio label="Preliminary" value="preliminary"></v-radio>
-          </v-radio-group>
+          <v-row>
+            <v-col cols="12" sm="6">
+              <v-label>Default</v-label>
+              <v-text-field
+                v-model="editingValues.default"
+                type="number"
+                :min="scrollerConfig.min"
+                :max="scrollerConfig.max"
+                :step="scrollerConfig.step"
+                density="compact"
+                hide-details
+                disabled
+                class="mt-1"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-label>Experimental</v-label>
+              <v-text-field
+                v-model="editingValues.experimental"
+                type="number"
+                :min="scrollerConfig.min"
+                :max="scrollerConfig.max"
+                :step="scrollerConfig.step"
+                density="compact"
+                hide-details
+                class="mt-1"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row class="mt-4">
+            <v-col cols="12" sm="6">
+              <v-label>Preliminary</v-label>
+              <v-text-field
+                v-model="editingValues.preliminary"
+                type="number"
+                :min="scrollerConfig.min"
+                :max="scrollerConfig.max"
+                :step="scrollerConfig.step"
+                density="compact"
+                hide-details
+                class="mt-1"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <div class="d-flex align-center">
+                <v-label>Final</v-label>
+                <v-btn
+                  icon
+                  size="x-small"
+                  variant="text"
+                  @click="showUnlockWarning"
+                  class="ml-2"
+                  :title="finalLocked ? 'Click to unlock' : 'Click to lock'"
+                >
+                  <v-icon :color="finalLocked ? 'grey' : 'primary'">
+                    {{ finalLocked ? 'mdi-lock' : 'mdi-lock-open' }}
+                  </v-icon>
+                </v-btn>
+              </div>
+              <v-text-field
+                v-model="editingValues.final"
+                type="number"
+                :min="scrollerConfig.min"
+                :max="scrollerConfig.max"
+                :step="scrollerConfig.step"
+                density="compact"
+                hide-details
+                :disabled="finalLocked"
+                class="mt-1"
+              ></v-text-field>
+            </v-col>
+          </v-row>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="grey" variant="text" @click="cancelAction">
+          <v-btn color="grey" variant="text" @click="cancelEdit" :disabled="saving">
             Cancel
           </v-btn>
-          <v-btn color="primary" variant="text" @click="confirmAction">
-            OK
+          <v-btn color="primary" variant="text" @click="saveEditedValues" :loading="saving">
+            Save
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Warning Dialog for unlocking Final threshold -->
+    <v-dialog v-model="unlockWarningDialog" max-width="500">
+      <v-card>
+        <v-card-title class="headline">Warning</v-card-title>
+        <v-card-text>
+          It is recommended to make changes only to the experimental or preliminary threshold, and to change the final threshold only based on new insights.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="grey" variant="text" @click="cancelUnlock">
+            Cancel
+          </v-btn>
+          <v-btn color="primary" variant="text" @click="unlockFinalInput">
+            I understand, unlock the input
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+
   </v-container>
 
 </template>

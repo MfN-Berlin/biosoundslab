@@ -20,7 +20,7 @@ sudo GIT_SSH_COMMAND='ssh -i path-to-your-id_rsa' git clone git@github.com:MfN-B
 sudo chown -R "$USER":akwamo biosoundslab_SITENAME_MODELNAME
 cd biosoundslab_SITENAME_MODELNAME
 ```
-Check that you are on the correct branch: `git status` should give "new-main"
+Check that you are on the correct branch: `git status` should give "main"
 
 ## Configuration
 Make a copy of the environment variables file for development
